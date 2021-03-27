@@ -1,6 +1,8 @@
 # markdown-diff
 This module generates a difference between two markdown files while keeping renderable in a markdown format
 
+WIP : feel free to open pull requests
+
 ## Installation
 Install with `npm`:
 ``` bash
