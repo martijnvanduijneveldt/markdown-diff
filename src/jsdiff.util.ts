@@ -1,5 +1,14 @@
 import { diffWords, Change } from 'diff';
 import { DiffUtil } from './diff.util';
+import { DiffEle } from './models/models';
+
+export enum DiffState {
+  Exists = 'Exists',
+  Added = 'Added',
+  Removed = 'Removed',
+}
+
+
 
 export class JsDiffUtil {
   static fullDiff(oldStr: string | null | undefined, newStr: string | null | undefined): string {

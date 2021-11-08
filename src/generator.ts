@@ -1,15 +1,14 @@
+/* tslint:disable:max-line-length */
 import *  as marked from 'marked';
-import { Token, Tokens, TokensList } from 'marked';
-import { DiffUtil } from './diff.util';
+import { Renderer, Token, Tokens, TokensList } from 'marked';
 import { TypeToString } from './type-to-string';
 import { TypeMapping } from './type-mapping';
 import { JsDiffUtil } from './jsdiff.util';
 
 export class Generator {
-  private static listRegexWithContent = /^([\r\n\t ]*)(\*|-|\+|\d+\.)([ ]*)(.*)$/gm;
-  private static titleRegexWithContent = /^([\r\n\t ]*)(#+)([ ]*)(.*)$/gm;
-
   private static newLine = '\n';
+
+  private rendered = new Renderer();
 
   /**
    * exec
@@ -103,10 +102,27 @@ export class Generator {
 
       return output; // Skip children
     }
-
+    if ((oldToken === null || TypeMapping.isBlockQuote(oldToken)) && (newToken === null || TypeMapping.isBlockQuote(newToken))) {
+      const newVals = newToken?.tokens.map(e => TypeMapping.isSpace(e) ? '' : e.raw);
+      const oldVals = oldToken?.tokens.map(e => TypeMapping.isSpace(e) ? '' : e.raw);
+      const res = JsDiffUtil.diffArrayByIndex(newVals, oldVals);
+      output.push(res.map(e => `> ${e}`).join(Generator.newLine));
+      return output;
+    }
+    if ((oldToken === null || TypeMapping.isBr(oldToken)) && (newToken === null || TypeMapping.isBr(newToken))) {
+      let res = '';
+      if (oldToken && !newToken) {
+        res = '<del></del>';
+      }
+      if (!oldToken && newToken) {
+        res = '<ins></ins>';
+      }
+      output.push(res + this.rendered.br());
+    }
     if ((oldToken === null || TypeMapping.isText(oldToken)) && (newToken === null || TypeMapping.isText(newToken))) {
       output.push(JsDiffUtil.diffWords(newToken?.text, oldToken?.text));
     }
+
     if ((oldToken === null || TypeMapping.hasTokens(oldToken)) && (newToken === null || TypeMapping.hasTokens(newToken))) {
       output.push(...this.walkTokens(newToken?.tokens, oldToken?.tokens));
     }
