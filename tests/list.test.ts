@@ -3,8 +3,8 @@ import { markdownDiff } from '../src/index';
 
 describe('List', () => {
   it('List should work correctly', () => {
-    const oldStr = '- ele one\n* ele two';
-    const newStr = '- ele one\n* ele two\n+ ele three';
+    const oldStr = '- ele one\n- ele two';
+    const newStr = '- ele one\n- ele two\n- ele three';
     const diff = markdownDiff(oldStr, newStr);
     assert.equal(diff, '* ele one\n* ele two\n* <ins>ele three</ins>');
   });

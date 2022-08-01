@@ -1,5 +1,4 @@
 import { DiffState } from '../jsdiff.util';
-import { Tokens } from 'marked';
 
 export interface DiffEle {
   state: DiffState;

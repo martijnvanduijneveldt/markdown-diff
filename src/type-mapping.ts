@@ -1,4 +1,7 @@
-import { Token, Tokens, TokensList } from 'marked';
+import { marked } from 'marked';
+import TokensList = marked.TokensList;
+import Token = marked.Token;
+import Tokens = marked.Tokens;
 
 export interface TokenWithChildren {
   tokens: TokensList;

@@ -1,5 +1,6 @@
-import { Tokens } from 'marked';
 import { DiffUtil } from './diff.util';
+import { marked } from 'marked';
+import Tokens = marked.Tokens;
 
 export class TypeToString {
   static link(tok: Tokens.Link, tag: string) {

@@ -1,9 +1,13 @@
 /* tslint:disable:max-line-length */
-import *  as marked from 'marked';
-import { Renderer, Token, Tokens, TokensList } from 'marked';
 import { TypeToString } from './type-to-string';
 import { TypeMapping } from './type-mapping';
 import { JsDiffUtil } from './jsdiff.util';
+import { marked } from 'marked';
+import Renderer = marked.Renderer;
+import TokensList = marked.TokensList;
+import Token = marked.Token;
+import ListItem = marked.Tokens.ListItem;
+import Tokens = marked.Tokens;
 
 export class Generator {
   private static newLine = '\n';
@@ -20,8 +24,8 @@ export class Generator {
     const newLexer = new marked.Lexer();
     const newTokens = newLexer.lex(newString);
 
-    console.debug(JSON.stringify(tokens, null, 4));
-    console.debug(JSON.stringify(newTokens, null, 4));
+    // console.debug(JSON.stringify(tokens, null, 4));
+    // console.debug(JSON.stringify(newTokens, null, 4));
 
     const output = this.walkTokens(newTokens, tokens);
 
@@ -51,15 +55,15 @@ export class Generator {
 
   private handleToken(newToken: Token | null, oldToken: Token | null): string[] {
     const output = [];
-    console.log(oldToken, newToken);
+    // console.log(oldToken, newToken);
     if ((oldToken === null || TypeMapping.isList(oldToken)) && (newToken === null || TypeMapping.isList(newToken))) {
       const prefixOld = oldToken && oldToken.ordered ? <number><unknown>oldToken.start : null;
       const prefixNew = newToken && newToken.ordered ? <number><unknown>newToken.start : null;
 
       let prefix = prefixNew ? prefixNew : prefixOld;
 
-      const oldItems = oldToken ? oldToken.items.map(e => e.text) : [];
-      const newItems = newToken ? newToken.items.map(e => e.text) : [];
+      const oldItems = oldToken ? oldToken.items.map((e: ListItem) => e.text) : [];
+      const newItems = newToken ? newToken.items.map((e: ListItem) => e.text) : [];
 
       // tslint:disable-next-line:no-increment-decrement
       const res = JsDiffUtil.diffArrayByIndex(newItems, oldItems).map(e => (prefix ? `${prefix++}. ${e}` : `* ${e}`));
@@ -81,12 +85,12 @@ export class Generator {
       return output; // Skip children
     }
     if ((oldToken === null || TypeMapping.isTable(oldToken)) && (newToken === null || TypeMapping.isTable(newToken))) {
-      const headers = JsDiffUtil.diffArrayByIndex(newToken?.header, oldToken?.header);
+      const headers = JsDiffUtil.diffArrayByIndex(newToken?.header.map(e => e.text), oldToken?.header.map(e => e.text));
       output.push(`|${headers.join('|')}|${Generator.newLine}`);
       const alignment = newToken ? newToken : oldToken as Tokens.Table;
       output.push(TypeToString.tableAlign(alignment) + Generator.newLine);
 
-      const content = JsDiffUtil.doubleStringArrayDiff(newToken?.cells, oldToken?.cells);
+      const content = JsDiffUtil.doubleStringArrayDiff(newToken?.rows.map(e => e.map(i => i.text)), oldToken?.rows.map(e => e.map(i => i.text)));
 
       for (const row of content) {
         output.push(`|${row.join('|')}|${Generator.newLine}`);
@@ -102,6 +106,19 @@ export class Generator {
 
       return output; // Skip children
     }
+
+    if ((oldToken === null || TypeMapping.isCode(oldToken)) && (newToken === null || TypeMapping.isCode(newToken))) {
+      output.push(`\`\`\`${oldToken?.lang}\n`);
+
+      const content = JsDiffUtil.diffCodeLines(newToken?.text.split(Generator.newLine), oldToken?.text.split(Generator.newLine));
+      output.push(content);
+      if (content.length > 0) {
+        output.push('\n');
+      }
+      output.push('```');
+      return output; // Skip children
+    }
+
     if ((oldToken === null || TypeMapping.isBlockQuote(oldToken)) && (newToken === null || TypeMapping.isBlockQuote(newToken))) {
       const newVals = newToken?.tokens.map(e => TypeMapping.isSpace(e) ? '' : e.raw);
       const oldVals = oldToken?.tokens.map(e => TypeMapping.isSpace(e) ? '' : e.raw);

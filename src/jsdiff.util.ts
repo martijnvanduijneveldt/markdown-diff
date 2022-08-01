@@ -1,14 +1,11 @@
-import { diffWords, Change } from 'diff';
+import { diffWords, Change, diffArrays, ArrayChange } from 'diff';
 import { DiffUtil } from './diff.util';
-import { DiffEle } from './models/models';
 
 export enum DiffState {
   Exists = 'Exists',
   Added = 'Added',
   Removed = 'Removed',
 }
-
-
 
 export class JsDiffUtil {
   static fullDiff(oldStr: string | null | undefined, newStr: string | null | undefined): string {
@@ -24,17 +21,25 @@ export class JsDiffUtil {
     return oldStr ? oldStr : '';
   }
 
-  static diffMarkdown(newStr: string | null | undefined, oldStr: string | null | undefined): string {
+  static diffMarkdown(newStr: string | null | undefined, oldStr: string | null | undefined):
+    string {
     return oldStr ? oldStr : '';
   }
 
-  static diffWords(newStr: string | null | undefined, oldStr: string | null | undefined): string {
+  static diffWords(newStr: string | undefined, oldStr: string | undefined): string {
     const parts = diffWords(oldStr ? oldStr : '', newStr ? newStr : '');
     const output = parts.map(p => JsDiffUtil.getChangeVal(p));
     return output.join('');
   }
 
-  static diffArrayByIndex(newArray: string[] | undefined, oldArray: string[] | undefined): string[] {
+  static diffCodeLines(newStr: string[] | undefined, oldStr: string[] | undefined): string {
+    const parts = diffArrays(oldStr ? oldStr : [], newStr ? newStr : []);
+    const output = parts.map(p => JsDiffUtil.getChangeWithPrefix(p));
+    return output.join('\n');
+  }
+
+  static diffArrayByIndex(newArray: string[] | undefined, oldArray: string[] | undefined):
+    string[] {
     let i = 0;
     const result: string[] = [];
     const oldArr = oldArray ? oldArray : [];
@@ -86,5 +91,15 @@ export class JsDiffUtil {
       return DiffUtil.wrapWithTag(change.value, 'del');
     }
     return change.value;
+  }
+
+  private static getChangeWithPrefix(change: ArrayChange<string>): string {
+    if (change.added) {
+      return change.value.map(e => `+ ${e}`).join('\n');
+    }
+    if (change.removed) {
+      return change.value.map(e => `- ${e}`).join('\n');
+    }
+    return change.value.join('\n');
   }
 }

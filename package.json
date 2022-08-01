@@ -13,7 +13,7 @@
     "postversion": "git push && git push --tags"
   },
   "name": "markdown-diff",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Generate a diff between two markdown files in markdown format",
   "main": "./lib/index.js",
   "keywords": [
@@ -35,12 +35,12 @@
   "homepage": "https://github.com/martijnvanduijneveldt/markdown-diff#readme",
   "dependencies": {
     "diff": "^4.0.1",
-    "marked": "^1.1.1"
+    "marked": "^4.0.18"
   },
   "devDependencies": {
     "@types/chai": "^4.2.6",
     "@types/diff": "^4.0.2",
-    "@types/marked": "^1.1.0",
+    "@types/marked": "^4.0.3",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
