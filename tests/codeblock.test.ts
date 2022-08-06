@@ -6,7 +6,7 @@ describe('CodeBlock', () => {
     const oldStr = '```\na\nb\nc\n```';
     const newStr = '```\na\nb\nd\n```';
     // tslint:disable-next-line:prefer-template
-    const expected = '```\na\nb\n- c\n+ d\n```';
+    const expected = '```\n  a\n  b\n- c\n+ d\n```';
     const diff = markdownDiff(oldStr, newStr);
     assert.equal(diff, expected);
   });
@@ -14,7 +14,7 @@ describe('CodeBlock', () => {
     const oldStr = '```\na\nb\n```';
     const newStr = '```\na\nb\nc\n```';
     // tslint:disable-next-line:prefer-template
-    const expected = '```\na\nb\n+ c\n```';
+    const expected = '```\n  a\n  b\n+ c\n```';
     const diff = markdownDiff(oldStr, newStr);
     assert.equal(diff, expected);
   });
@@ -22,7 +22,15 @@ describe('CodeBlock', () => {
     const oldStr = '```\na\nb\n```';
     const newStr = '```\na\nd\nb\nc\n```';
     // tslint:disable-next-line:prefer-template
-    const expected = '```\na\n+ d\nb\n+ c\n```';
+    const expected = '```\n  a\n+ d\n  b\n+ c\n```';
+    const diff = markdownDiff(oldStr, newStr);
+    assert.equal(diff, expected);
+  });
+  it('No diff', () => {
+    const oldStr = '```\na\nb\n```';
+    const newStr = '```\na\nb\n```';
+    // tslint:disable-next-line:prefer-template
+    const expected = '```\na\nb\n```';
     const diff = markdownDiff(oldStr, newStr);
     assert.equal(diff, expected);
   });

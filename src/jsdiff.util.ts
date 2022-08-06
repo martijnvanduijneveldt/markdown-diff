@@ -34,7 +34,8 @@ export class JsDiffUtil {
 
   static diffCodeLines(newStr: string[] | undefined, oldStr: string[] | undefined): string {
     const parts = diffArrays(oldStr ? oldStr : [], newStr ? newStr : []);
-    const output = parts.map(p => JsDiffUtil.getChangeWithPrefix(p));
+    const anyDiffs = parts.some(e => e.added || e.removed);
+    const output = parts.map(p => JsDiffUtil.getChangeWithPrefix(p, anyDiffs));
     return output.join('\n');
   }
 
@@ -93,12 +94,16 @@ export class JsDiffUtil {
     return change.value;
   }
 
-  private static getChangeWithPrefix(change: ArrayChange<string>): string {
+  private static getChangeWithPrefix(change: ArrayChange<string>,
+                                     anyDiffsInBlock: boolean): string {
     if (change.added) {
       return change.value.map(e => `+ ${e}`).join('\n');
     }
     if (change.removed) {
       return change.value.map(e => `- ${e}`).join('\n');
+    }
+    if (anyDiffsInBlock) {
+      return change.value.map(e => `  ${e}`).join('\n');
     }
     return change.value.join('\n');
   }
