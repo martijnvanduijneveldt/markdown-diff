@@ -51,7 +51,7 @@ export class Generator {
   }
 
   private handleToken(newToken: Token | null, oldToken: Token | null): string[] {
-    const output = [];
+    const output:string[] = [];
     if ((oldToken === null || TypeMapping.isList(oldToken)) && (newToken === null || TypeMapping.isList(newToken))) {
       const prefixOld = oldToken && oldToken.ordered ? <number><unknown>oldToken.start : null;
       const prefixNew = newToken && newToken.ordered ? <number><unknown>newToken.start : null;
@@ -118,6 +118,10 @@ export class Generator {
       const oldVals = oldToken?.tokens.map(e => TypeMapping.isSpace(e) ? '' : e.raw);
       const res = JsDiffUtil.diffArrayByIndex(newVals, oldVals);
       output.push(...res.map(e => `> ${e}`));
+      return output;
+    }
+    if ((oldToken === null || TypeMapping.isStrong(oldToken)) && (newToken === null || TypeMapping.isStrong(newToken))) {
+      output.push(`**${JsDiffUtil.diffWords(newToken?.text, oldToken?.text)}**`);
       return output;
     }
     if ((oldToken === null || TypeMapping.isBr(oldToken)) && (newToken === null || TypeMapping.isBr(newToken))) {
