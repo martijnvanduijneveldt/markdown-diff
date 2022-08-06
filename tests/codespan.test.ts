@@ -22,4 +22,10 @@ describe('Bold text', () => {
     const diff = markdownDiff(oldStr, newStr);
     assert.equal(diff, 'aa <del>`bb dd`</del>');
   });
+  it('No change', () => {
+    const oldStr = 'aa `bb dd`';
+    const newStr = 'aa `bb dd`';
+    const diff = markdownDiff(oldStr, newStr);
+    assert.equal(diff, 'aa `bb dd`');
+  });
 });

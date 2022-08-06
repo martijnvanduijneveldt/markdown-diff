@@ -121,6 +121,8 @@ export class Generator {
         if (newToken) {
           res += `<ins>\`${newToken.text}\`</ins>`;
         }
+      } else {
+        res = `\`${newToken!.text}\``;
       }
       output.push(res);
 
