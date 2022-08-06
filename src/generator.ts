@@ -24,12 +24,9 @@ export class Generator {
     const newLexer = new marked.Lexer();
     const newTokens = newLexer.lex(newString);
 
-    // console.debug(JSON.stringify(tokens, null, 4));
-    // console.debug(JSON.stringify(newTokens, null, 4));
-
     const output = this.walkTokens(newTokens, tokens);
 
-    return output.join('');
+    return output.join(Generator.newLine);
   }
 
   private walkTokens(newTokens: TokensList | null | undefined, oldTokens: TokensList | null | undefined): string[] {
@@ -55,7 +52,6 @@ export class Generator {
 
   private handleToken(newToken: Token | null, oldToken: Token | null): string[] {
     const output = [];
-    // console.log(oldToken, newToken);
     if ((oldToken === null || TypeMapping.isList(oldToken)) && (newToken === null || TypeMapping.isList(newToken))) {
       const prefixOld = oldToken && oldToken.ordered ? <number><unknown>oldToken.start : null;
       const prefixNew = newToken && newToken.ordered ? <number><unknown>newToken.start : null;
@@ -67,7 +63,8 @@ export class Generator {
 
       // tslint:disable-next-line:no-increment-decrement
       const res = JsDiffUtil.diffArrayByIndex(newItems, oldItems).map(e => (prefix ? `${prefix++}. ${e}` : `* ${e}`));
-      output.push(res.join(Generator.newLine));
+      output.push(...res);
+      return output;
     }
     if ((oldToken === null || TypeMapping.isLink(oldToken)) && (newToken === null || TypeMapping.isLink(newToken))) {
 
@@ -86,14 +83,14 @@ export class Generator {
     }
     if ((oldToken === null || TypeMapping.isTable(oldToken)) && (newToken === null || TypeMapping.isTable(newToken))) {
       const headers = JsDiffUtil.diffArrayByIndex(newToken?.header.map(e => e.text), oldToken?.header.map(e => e.text));
-      output.push(`|${headers.join('|')}|${Generator.newLine}`);
+      output.push(`|${headers.join('|')}|`);
       const alignment = newToken ? newToken : oldToken as Tokens.Table;
-      output.push(TypeToString.tableAlign(alignment) + Generator.newLine);
+      output.push(TypeToString.tableAlign(alignment));
 
       const content = JsDiffUtil.doubleStringArrayDiff(newToken?.rows.map(e => e.map(i => i.text)), oldToken?.rows.map(e => e.map(i => i.text)));
 
       for (const row of content) {
-        output.push(`|${row.join('|')}|${Generator.newLine}`);
+        output.push(`|${row.join('|')}|`);
       }
 
       return output; // Skip children
@@ -102,19 +99,16 @@ export class Generator {
       const count = newToken ? newToken.depth : (oldToken as Tokens.Heading).depth;
       const depth = '#'.repeat(count);
 
-      output.push(`${depth} ${JsDiffUtil.diffWords(newToken?.text, oldToken?.text)}${Generator.newLine}`);
+      output.push(`${depth} ${JsDiffUtil.diffWords(newToken?.text, oldToken?.text)}`);
 
       return output; // Skip children
     }
 
     if ((oldToken === null || TypeMapping.isCode(oldToken)) && (newToken === null || TypeMapping.isCode(newToken))) {
-      output.push(`\`\`\`${oldToken?.lang}\n`);
+      output.push(`\`\`\`${oldToken?.lang}`);
 
       const content = JsDiffUtil.diffCodeLines(newToken?.text.split(Generator.newLine), oldToken?.text.split(Generator.newLine));
       output.push(content);
-      if (content.length > 0) {
-        output.push('\n');
-      }
       output.push('```');
       return output; // Skip children
     }
@@ -123,7 +117,7 @@ export class Generator {
       const newVals = newToken?.tokens.map(e => TypeMapping.isSpace(e) ? '' : e.raw);
       const oldVals = oldToken?.tokens.map(e => TypeMapping.isSpace(e) ? '' : e.raw);
       const res = JsDiffUtil.diffArrayByIndex(newVals, oldVals);
-      output.push(res.map(e => `> ${e}`).join(Generator.newLine));
+      output.push(...res.map(e => `> ${e}`));
       return output;
     }
     if ((oldToken === null || TypeMapping.isBr(oldToken)) && (newToken === null || TypeMapping.isBr(newToken))) {
@@ -141,7 +135,7 @@ export class Generator {
     }
 
     if ((oldToken === null || TypeMapping.hasTokens(oldToken)) && (newToken === null || TypeMapping.hasTokens(newToken))) {
-      output.push(...this.walkTokens(newToken?.tokens, oldToken?.tokens));
+      output.push(this.walkTokens(newToken?.tokens, oldToken?.tokens).join(''));
     }
     return output;
   }
