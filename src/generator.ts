@@ -113,7 +113,6 @@ export class Generator {
       return output; // Skip children
     }
     if ((oldToken === null || TypeMapping.isCodespan(oldToken)) && (newToken === null || TypeMapping.isCodespan(newToken))) {
-      console.log(oldToken, newToken);
       let res = '';
       if (oldToken?.text !== newToken?.text) {
         if (oldToken) {
