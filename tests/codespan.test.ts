@@ -2,7 +2,7 @@
 import { assert } from 'chai';
 import { markdownDiff } from '../src';
 
-describe('Bold text', () => {
+describe('Code span', () => {
   it('Simple edit', () => {
     const oldStr = 'aa `bb cc` zz';
     const newStr = 'aa `bb dd` zz';

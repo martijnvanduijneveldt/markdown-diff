@@ -140,6 +140,10 @@ export class Generator {
       output.push(`**${JsDiffUtil.diffWords(newToken?.text, oldToken?.text)}**`);
       return output;
     }
+    if ((oldToken === null || TypeMapping.isEm(oldToken)) && (newToken === null || TypeMapping.isEm(newToken))) {
+      output.push(`*${JsDiffUtil.diffWords(newToken?.text, oldToken?.text)}*`);
+      return output;
+    }
     if ((oldToken === null || TypeMapping.isBr(oldToken)) && (newToken === null || TypeMapping.isBr(newToken))) {
       let res = '';
       if (oldToken && !newToken) {
