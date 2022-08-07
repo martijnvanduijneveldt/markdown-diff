@@ -1,7 +1,7 @@
 # markdown-diff
 This module generates a difference between two markdown files while keeping renderable in a markdown format
 
-WIP : feel free to open pull requests
+> WIP : feel free to open pull requests
 
 ## Installation
 Install with `npm`:
@@ -27,18 +27,14 @@ const res = markdownDiff('oldStr', 'newStr');
 
 ## Example 
 
+### Simple sentence
 ```
-Before : Simple sentence and delete
-After  : Simple sentence with insert and
+Simple sentence and delete
+Simple sentence with insert and
+```
+Simple sentence <ins>with insert </ins>and<del> delete</del>
 
-Output : Simple sentence <ins>with insert </ins>and<del> delete</del>
-```
-```
-Before : helo
-After  : hello
-
-Output : hel<ins>l</ins>o
-```
+### Lists
 ```
 Before :
 - ele one
@@ -47,15 +43,17 @@ After  :
 - ele one
 - ele two
 - ele three
-
-Output :
+```
 - ele one
 - ele two
 - <ins>ele three</ins>
-```
 
 ## TODO
-- [ ] Blockquote nested line 
+- [ ] Blockquote nested line
+- [ ] Espace token
+- [ ] Html token
+- [ ] Hr token
+- [ ] Tag token
 
 ## License
 [MIT](LICENSE)
