@@ -1,7 +1,4 @@
-import { marked } from 'marked';
-import TokensList = marked.TokensList;
-import Token = marked.Token;
-import Tokens = marked.Tokens;
+import { Token, Tokens, TokensList } from 'marked';
 
 export interface TokenWithChildren {
   tokens: TokensList;
@@ -68,9 +65,7 @@ export class TypeMapping {
 
   static isTag(token: Token): token is Tokens.Tag {
     const tok = token as Tokens.Tag;
-    return tok.inLink !== undefined
-      && tok.inRawBlock !== undefined
-      && (tok.type === 'html' || tok.type === 'text');
+    return tok.inLink !== undefined && tok.inRawBlock !== undefined && (tok.type === 'html' || tok.type === 'text');
   }
 
   static isSpace(token: Token): token is Tokens.Space {
@@ -84,5 +79,4 @@ export class TypeMapping {
   static hasTokens(token: any): token is TokenWithChildren {
     return token && (token as TokenWithChildren).tokens !== undefined;
   }
-
 }

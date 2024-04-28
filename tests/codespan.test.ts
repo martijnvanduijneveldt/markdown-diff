@@ -1,5 +1,4 @@
-
-import { assert } from 'chai';
+import { it, describe, expect } from 'vitest';
 import { markdownDiff } from '../src';
 
 describe('Code span', () => {
@@ -7,25 +6,25 @@ describe('Code span', () => {
     const oldStr = 'aa `bb cc` zz';
     const newStr = 'aa `bb dd` zz';
     const diff = markdownDiff(oldStr, newStr);
-    assert.equal(diff, 'aa <del>`bb cc`</del><ins>`bb dd`</ins> zz');
+    expect(diff).equal('aa <del>`bb cc`</del><ins>`bb dd`</ins> zz');
   });
   it('Simple add', () => {
     const oldStr = 'aa';
     const newStr = 'aa `bb dd`';
     const diff = markdownDiff(oldStr, newStr);
-    assert.equal(diff, 'aa <ins>`bb dd`</ins>');
+    expect(diff).equal('aa <ins>`bb dd`</ins>');
   });
 
   it('Simple remove', () => {
     const oldStr = 'aa `bb dd`';
     const newStr = 'aa';
     const diff = markdownDiff(oldStr, newStr);
-    assert.equal(diff, 'aa <del>`bb dd`</del>');
+    expect(diff).equal('aa <del>`bb dd`</del>');
   });
   it('No change', () => {
     const oldStr = 'aa `bb dd`';
     const newStr = 'aa `bb dd`';
     const diff = markdownDiff(oldStr, newStr);
-    assert.equal(diff, 'aa `bb dd`');
+    expect(diff).equal('aa `bb dd`');
   });
 });

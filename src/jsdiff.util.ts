@@ -1,4 +1,6 @@
-import { diffWords, Change, diffArrays, ArrayChange } from 'diff';
+import {
+  diffWords, Change, diffArrays, ArrayChange,
+} from 'diff';
 import { DiffUtil } from './diff.util';
 
 export enum DiffState {
@@ -18,33 +20,31 @@ export class JsDiffUtil {
       }
       return `<del>${oldStr}</del><ins>${newStr}</ins>`;
     }
-    return oldStr ? oldStr : '';
+    return oldStr || '';
   }
 
-  static diffMarkdown(newStr: string | null | undefined, oldStr: string | null | undefined):
-    string {
-    return oldStr ? oldStr : '';
+  static diffMarkdown(newStr: string | null | undefined, oldStr: string | null | undefined): string {
+    return oldStr || '';
   }
 
   static diffWords(newStr: string | undefined, oldStr: string | undefined): string {
-    const parts = diffWords(oldStr ? oldStr : '', newStr ? newStr : '');
-    const output = parts.map(p => JsDiffUtil.getChangeVal(p));
+    const parts = diffWords(oldStr || '', newStr || '');
+    const output = parts.map((p) => JsDiffUtil.getChangeVal(p));
     return output.join('');
   }
 
   static diffCodeLines(newStr: string[] | undefined, oldStr: string[] | undefined): string {
-    const parts = diffArrays(oldStr ? oldStr : [], newStr ? newStr : []);
-    const anyDiffs = parts.some(e => e.added || e.removed);
-    const output = parts.map(p => JsDiffUtil.getChangeWithPrefix(p, anyDiffs));
+    const parts = diffArrays(oldStr || [], newStr || []);
+    const anyDiffs = parts.some((e) => e.added || e.removed);
+    const output = parts.map((p) => JsDiffUtil.getChangeWithPrefix(p, anyDiffs));
     return output.join('\n');
   }
 
-  static diffArrayByIndex(newArray: string[] | undefined, oldArray: string[] | undefined):
-    string[] {
+  static diffArrayByIndex(newArray: string[] | undefined, oldArray: string[] | undefined): string[] {
     let i = 0;
     const result: string[] = [];
-    const oldArr = oldArray ? oldArray : [];
-    const newArr = newArray ? newArray : [];
+    const oldArr = oldArray || [];
+    const newArr = newArray || [];
 
     while (i < oldArr.length && i < newArr.length) {
       result[i] = JsDiffUtil.diffWords(newArr[i], oldArr[i]);
@@ -61,13 +61,10 @@ export class JsDiffUtil {
     return result;
   }
 
-  public static doubleStringArrayDiff(
-    newArray: string[][] | undefined,
-    oldArray: string[][] | undefined,
-  ): string[][] {
+  public static doubleStringArrayDiff(newArray: string[][] | undefined, oldArray: string[][] | undefined): string[][] {
     let i = 0;
-    const oldArr = oldArray ? oldArray : [];
-    const newArr = newArray ? newArray : [];
+    const oldArr = oldArray || [];
+    const newArr = newArray || [];
     const result = [];
     while (i < oldArr.length && i < newArr.length) {
       result[i] = this.diffArrayByIndex(newArr[i], oldArr[i]);
@@ -94,16 +91,15 @@ export class JsDiffUtil {
     return change.value;
   }
 
-  private static getChangeWithPrefix(change: ArrayChange<string>,
-                                     anyDiffsInBlock: boolean): string {
+  private static getChangeWithPrefix(change: ArrayChange<string>, anyDiffsInBlock: boolean): string {
     if (change.added) {
-      return change.value.map(e => `+ ${e}`).join('\n');
+      return change.value.map((e) => `+ ${e}`).join('\n');
     }
     if (change.removed) {
-      return change.value.map(e => `- ${e}`).join('\n');
+      return change.value.map((e) => `- ${e}`).join('\n');
     }
     if (anyDiffsInBlock) {
-      return change.value.map(e => `  ${e}`).join('\n');
+      return change.value.map((e) => `  ${e}`).join('\n');
     }
     return change.value.join('\n');
   }

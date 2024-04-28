@@ -1,13 +1,11 @@
 /* tslint:disable:max-line-length */
+import {
+  marked, TokensList, Token, Tokens,
+} from 'marked';
 import { TypeToString } from './type-to-string';
 import { TypeMapping } from './type-mapping';
 import { JsDiffUtil } from './jsdiff.util';
-import { marked } from 'marked';
 import Renderer = marked.Renderer;
-import TokensList = marked.TokensList;
-import Token = marked.Token;
-import ListItem = marked.Tokens.ListItem;
-import Tokens = marked.Tokens;
 
 export class Generator {
   private static newLine = '\n';
@@ -33,8 +31,8 @@ export class Generator {
     const output = [];
     let i = 0;
 
-    const innerNew = newTokens ? newTokens : [];
-    const innerOld = oldTokens ? oldTokens : [];
+    const innerNew = newTokens || [];
+    const innerOld = oldTokens || [];
 
     for (i; i < innerOld.length && i < innerNew.length; i += 1) {
       output.push(...this.handleToken(innerNew[i], innerOld[i]));
@@ -53,22 +51,32 @@ export class Generator {
   private handleToken(newToken: Token | null, oldToken: Token | null): string[] {
     const output: string[] = [];
     if ((oldToken === null || TypeMapping.isList(oldToken)) && (newToken === null || TypeMapping.isList(newToken))) {
-      const prefixOld = oldToken && oldToken.ordered ? <number><unknown>oldToken.start : null;
-      const prefixNew = newToken && newToken.ordered ? <number><unknown>newToken.start : null;
+      const prefixOld = oldToken && oldToken.ordered ? oldToken.start : null;
+      const prefixNew = newToken && newToken.ordered ? newToken.start : null;
 
-      let prefix = prefixNew ? prefixNew : prefixOld;
+      let prefix = prefixNew || prefixOld;
 
-      const oldItems = oldToken ? oldToken.items.map((e: ListItem) => e.text) : [];
-      const newItems = newToken ? newToken.items.map((e: ListItem) => e.text) : [];
+      const oldItems = oldToken ? oldToken.items.map((e: Tokens.ListItem) => e.text) : [];
+      const newItems = newToken ? newToken.items.map((e: Tokens.ListItem) => e.text) : [];
 
       // tslint:disable-next-line:no-increment-decrement
-      const res = JsDiffUtil.diffArrayByIndex(newItems, oldItems).map(e => (prefix ? `${prefix++}. ${e}` : `* ${e}`));
+      const res = JsDiffUtil.diffArrayByIndex(newItems, oldItems).map((e) => {
+        if (prefix) {
+          const result = `${prefix}. ${e}`;
+          prefix += 1;
+          return result;
+        }
+        return `* ${e}`;
+      });
       output.push(...res);
       return output;
     }
     if ((oldToken === null || TypeMapping.isLink(oldToken)) && (newToken === null || TypeMapping.isLink(newToken))) {
-
-      if (oldToken?.text !== newToken?.text || oldToken?.href !== newToken?.href || oldToken?.title !== newToken?.title) {
+      if (
+        oldToken?.text !== newToken?.text
+        || oldToken?.href !== newToken?.href
+        || oldToken?.title !== newToken?.title
+      ) {
         if (oldToken) {
           output.push(TypeToString.link(oldToken, 'del'));
         }
@@ -82,15 +90,21 @@ export class Generator {
       return output; // Skip children
     }
     if ((oldToken === null || TypeMapping.isTable(oldToken)) && (newToken === null || TypeMapping.isTable(newToken))) {
-      const headers = JsDiffUtil.diffArrayByIndex(newToken?.header.map(e => e.text), oldToken?.header.map(e => e.text));
+      const headers = JsDiffUtil.diffArrayByIndex(
+        newToken?.header.map((e) => e.text),
+        oldToken?.header.map((e) => e.text),
+      );
       output.push(`|${headers.join('|')}|`);
-      const alignment = newToken ? newToken : oldToken as Tokens.Table;
+      const alignment = newToken || (oldToken as Tokens.Table);
       output.push(TypeToString.tableAlign(alignment));
 
-      const content = JsDiffUtil.doubleStringArrayDiff(newToken?.rows.map(e => e.map(i => i.text)), oldToken?.rows.map(e => e.map(i => i.text)));
+      const content = JsDiffUtil.doubleStringArrayDiff(
+        newToken?.rows.map((e) => e.map((i) => i.text)),
+        oldToken?.rows.map((e) => e.map((i) => i.text)),
+      );
 
-      for (const row of content) {
-        output.push(`|${row.join('|')}|`);
+      for (let i = 0; i < content.length; i += 1) {
+        output.push(`|${content[i].join('|')}|`);
       }
 
       return output; // Skip children
@@ -129,11 +143,14 @@ export class Generator {
       return output; // Skip children
     }
 
-    if ((oldToken === null || TypeMapping.isBlockQuote(oldToken)) && (newToken === null || TypeMapping.isBlockQuote(newToken))) {
-      const newVals = newToken?.tokens.map(e => TypeMapping.isSpace(e) ? '' : e.raw);
-      const oldVals = oldToken?.tokens.map(e => TypeMapping.isSpace(e) ? '' : e.raw);
+    if (
+      (oldToken === null || TypeMapping.isBlockQuote(oldToken))
+      && (newToken === null || TypeMapping.isBlockQuote(newToken))
+    ) {
+      const newVals = newToken?.tokens.map((e) => (TypeMapping.isSpace(e) ? '' : e.raw));
+      const oldVals = oldToken?.tokens.map((e) => (TypeMapping.isSpace(e) ? '' : e.raw));
       const res = JsDiffUtil.diffArrayByIndex(newVals, oldVals);
-      output.push(...res.map(e => `> ${e}`));
+      output.push(...res.map((e) => `> ${e}`));
       return output;
     }
     if ((oldToken === null || TypeMapping.isStrong(oldToken)) && (newToken === null || TypeMapping.isStrong(newToken))) {
@@ -163,5 +180,4 @@ export class Generator {
     }
     return output;
   }
-
 }

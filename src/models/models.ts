@@ -6,6 +6,7 @@ export interface DiffEle {
 
 export class DiffString implements DiffEle {
   value: string;
+
   state: DiffState;
 
   constructor(value: string, state: DiffState) {
@@ -16,7 +17,9 @@ export class DiffString implements DiffEle {
 
 export class BlockQuoteDiff implements DiffEle {
   state: DiffState;
+
   depth: number;
+
   value: string;
 
   constructor(value: string, depth: number, state: DiffState) {
@@ -24,5 +27,4 @@ export class BlockQuoteDiff implements DiffEle {
     this.depth = depth;
     this.state = state;
   }
-
 }

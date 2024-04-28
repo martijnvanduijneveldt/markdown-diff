@@ -1,0 +1,19 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "airbnb-base",
+    "airbnb-typescript/base"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.test.json"
+  },
+  "rules": {
+    "max-classes-per-file": 0,
+    "import/prefer-default-export": 0,
+    "max-len": 0
+  }
+}
