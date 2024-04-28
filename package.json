@@ -11,7 +11,7 @@
     "postversion": "git push && git push --tags"
   },
   "name": "markdown-diff",
-  "version": "1.0.9",
+  "version": "2.0.0",
   "description": "Generate a diff between two markdown files in markdown format",
   "main": "./lib/index.js",
   "keywords": [
